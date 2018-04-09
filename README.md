@@ -1,0 +1,2 @@
+# SHPractice-AVFoundationRecord
+AVFoundation实现一个录制视频并保存功能的demo
