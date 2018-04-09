@@ -10,9 +10,16 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate>
+
+@property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureDevice *cameraDevice;
 @property (nonatomic, strong) AVCaptureDevice *audioDevice;
 @property (nonatomic, strong) dispatch_queue_t sampleBufferQueue;
+
+@property (nonatomic, strong) AVCaptureConnection *audioConnection;
+@property (nonatomic, strong) AVCaptureConnection *videoConnection;
+
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @end
 
 @implementation ViewController
@@ -30,6 +37,7 @@
     // AVCaptureVideoPreviewLayer 预览视图
     // AVAssetWriter //写入文件
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
+    self.session = session;
     
     //input
     AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:self.audioDevice error:NULL];
@@ -46,13 +54,23 @@
     
     AVCaptureAudioDataOutput *audioOutput = [[AVCaptureAudioDataOutput alloc] init];
     [audioOutput setSampleBufferDelegate:self queue:self.sampleBufferQueue];
+    
+    AVCaptureConnection *audioConnection = [audioOutput connectionWithMediaType:AVMediaTypeAudio];
+    _audioConnection = audioConnection;
+    
+    AVCaptureConnection *videoConnection = [videoOutput connectionWithMediaType:AVMediaTypeVideo];
+    _videoConnection = videoConnection;
+    
+    [self.view.layer addSublayer:self.previewLayer];
+    [self.session startRunning];
+    
 
     
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    
+    NSLog(@"didOutputSampleBuffer ---- %@",sampleBuffer);
 }
 
 
@@ -79,5 +97,13 @@
         _sampleBufferQueue = dispatch_queue_create("shine.avfoundation", DISPATCH_QUEUE_SERIAL); //串行队列
     }
     return _sampleBufferQueue;
+}
+
+- (AVCaptureVideoPreviewLayer *)previewLayer{
+    if(!_previewLayer){
+        _previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+        _previewLayer.frame = self.view.bounds;
+    }
+    return _previewLayer;
 }
 @end
