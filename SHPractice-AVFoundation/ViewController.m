@@ -61,11 +61,17 @@
     AVCaptureConnection *videoConnection = [videoOutput connectionWithMediaType:AVMediaTypeVideo];
     _videoConnection = videoConnection;
     
-    [self.view.layer addSublayer:self.previewLayer];
-    [self.session startRunning];
+    [session addOutput:audioOutput];
+    [session addOutput:videoOutput];
     
+    
+}
 
-    
+- (IBAction)startBtnClicked:(id)sender{
+    [self.view.layer addSublayer:self.previewLayer];
+    [self.session addConnection:_audioConnection];
+    [self.session addConnection:_videoConnection];
+    [self.session startRunning];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
